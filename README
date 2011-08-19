@@ -1,0 +1,13 @@
+1/ geometric algebra library like gaalet but with a metric tensor instead of a simple signature to define it
+http://sourceforge.net/projects/gaalet/
+http://gravisma.zcu.cz/GraVisMa-2010/Papers/Tutorial/F02-full.pdf
+
+2/ make use of boost::proto to parse c++ expression template no custom stuff like gaalet
+3/ make use of boost::karma to output a multivector, maybe format it for LaTeX
+4/ full boostify library unlike gaalet
+
+5/ be compatible with boost::odeint, std::complex, boost::quaternion, boost::octonion, float, double...
+6/ parallelism to improve performance, CUDA, OpenCL, SIMD, MPI, other...
+
+7/ Python.SymPy.Galgebra module already decribes all needed algorithms
+http://docs.sympy.org/dev/modules/galgebra/GA/GAsympy.html
