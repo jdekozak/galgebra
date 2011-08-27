@@ -62,21 +62,73 @@ namespace galgebra
     // list that we're building in the "state" parameter
     proto::when<
       proto::terminal<proto::_>
-      , fusion::cons<proto::_value, proto::_state>(
-						   proto::_value, proto::_state
-						   )
+      ,fusion::cons<proto::_value, proto::_state>(proto::_value, proto::_state)
       >
     // For multiplies operations, first fold the right
     // child to a list using the current state. Use
     // the result as the state parameter when folding
     // the left child to a list.
-    , proto::when<
-	proto::multiplies<FoldToList, FoldToList>
-	, FoldToList(
-		     proto::_left
-		     ,FoldToList(proto::_right, proto::_state)
-		     )
-        >
+    ,proto::when<
+       proto::multiplies<FoldToList,FoldToList>
+       ,FoldToList(proto::_left,
+		   FoldToList(proto::_right, proto::_state)
+		   )
+       >
+    >
+  {};
+
+  struct scalar
+    : proto::or_<
+    proto::terminal<double>
+    ,proto::terminal<int>
+    >
+  {};
+
+  struct right_distribution
+    : proto::or_<
+    proto::when<proto::terminal<proto::_>
+		,proto::_make_multiplies(proto::_value(), proto::_state()) >
+    ,proto::plus<right_distribution, right_distribution>
+    >
+  {};
+
+  struct right_multiplies
+    : proto::or_<
+    proto::when<
+      proto::multiplies<right_distribution, proto::terminal<proto::_> >
+      ,right_distribution(proto::_left(),proto::_right())
+      >
+    ,proto::plus<right_multiplies, right_multiplies>
+      ,proto::terminal<proto::_>
+    >
+  {};
+
+  struct left_distribution
+    : proto::or_<
+    proto::when<proto::terminal<proto::_>
+		,proto::_make_multiplies(proto::_state(), proto::_value()) >
+    ,proto::plus<left_distribution, left_distribution>
+    >
+  {};
+
+  struct left_multiplies
+    : proto::or_<
+    proto::when<
+      proto::multiplies<proto::terminal<proto::_>, left_multiplies >
+      ,left_distribution(proto::_right(),proto::_left())
+      >
+    ,proto::plus<left_multiplies, left_multiplies>
+      ,proto::terminal<proto::_>
+    >
+  {};
+
+  struct galgebra_grammar
+    : proto::or_<
+    scalar
+    ,proto::terminal<e_<proto::N> >
+    ,proto::multiplies<galgebra_grammar, galgebra_grammar>
+    ,proto::plus<galgebra_grammar, galgebra_grammar>
+    ,proto::minus<galgebra_grammar, galgebra_grammar>
     >
   {};
 
@@ -84,9 +136,9 @@ namespace galgebra
   struct contract
     : proto::if_<mpl::greater_equal<g<Metric,value(proto::_left),value(proto::_right)>
 				    ,mpl::int_<0> >()
-		 // g[I,I] > 0
+		 // g[I,I] >= 0
 		 ,proto::_make_unary_plus(g<Metric,value(proto::_left),value(proto::_right)>())
-		 // g[I,I] <= 0
+		 // g[I,I] < 0
 		 ,proto::_make_negate(mpl::negate<g<Metric,value(proto::_left),value(proto::_right)> >())
 		 >
   {};
@@ -103,7 +155,8 @@ namespace galgebra
 		 ,proto::_make_minus(proto::_make_multiplies(mpl::int_<2>()
 							     ,g<Metric,value(proto::_left),value(proto::_right)>())
 				     ,proto::_make_multiplies(proto::_right
-							      ,proto::_left))
+							      ,proto::_left)
+				     )
 		 >
   {};
 
@@ -155,6 +208,8 @@ typedef proto::terminal< galgebra::e_<4> >::type gamma_w;
 
 #define theTest ((gamma_x()*gamma_x()*gamma_w()))
 #define theTestVector ((gamma_x()*gamma_t()*gamma_w()+gamma_z()*gamma_y()))
+#define theRightDistributionTest ((gamma_x()+gamma_t())*gamma_w())
+#define theLeftDistributionTest (gamma_w()*(gamma_x()+gamma_t()))
 #define theRevisionXY (gamma_x()*gamma_y())
 #define theRevisionYX (gamma_y()*gamma_x())
 #define theContraction (gamma_z()*gamma_z())
@@ -179,7 +234,18 @@ int main(int argc, char* argv[])
 
   std::cout << std::endl;
 
+  proto::display_expr(galgebra::galgebra_grammar()theTestVector);
   proto::display_expr(proto::unpack_expr<galgebra::product>(galgebra::FoldToList()(theTestVector, fusion::nil())));
+
+  std::cout << std::endl;
+
+  proto::display_expr(theRightDistributionTest);
+  proto::display_expr(galgebra::right_multiplies()theRightDistributionTest);
+
+  std::cout << std::endl;
+
+  proto::display_expr(theLeftDistributionTest);
+  proto::display_expr(galgebra::left_multiplies()theLeftDistributionTest);
 
   std::cout << std::endl;
   /*
