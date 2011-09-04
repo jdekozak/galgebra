@@ -1,4 +1,5 @@
 all: galgebra
+	./galgebra
 
 galgebra: main.o
 	g++ main.o -o galgebra

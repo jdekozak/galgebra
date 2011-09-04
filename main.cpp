@@ -19,6 +19,7 @@ using namespace boost;
 //library
 namespace galgebra
 {
+  //metric and dimension
   template <typename Metric>
   struct dimension
     : mpl::size<Metric>::type
@@ -31,7 +32,6 @@ namespace galgebra
   struct g
     : mpl::at<typename mpl::at<Metric, I>::type, J>::type
   {};
-
   //vectors
   template<int Position>
   struct e_
@@ -41,18 +41,18 @@ namespace galgebra
       return (p_output << "e_" << Position);
     }
   };
-
+  //utilities
   struct value
     : proto::when<proto::terminal<proto::_>
 		  ,proto::_value
 		  >
   {};
-
-  //geomtric algebra over reals
+  //geometric algebra over reals
+  //primitive structures
   struct scalar
     : proto::terminal<proto::convertible_to<double> >
   {};
-
+  //geometric algebra up to 8 vectors
   struct vector
     : proto::or_<
     proto::terminal<e_<0> >
@@ -65,6 +65,7 @@ namespace galgebra
     ,proto::terminal<e_<7> >
     >
   {};
+  //predefined vectors symbols
   proto::terminal<e_<0> >::type e_0 = {};
   proto::terminal<e_<1> >::type e_1 = {};
   proto::terminal<e_<2> >::type e_2 = {};
@@ -74,6 +75,13 @@ namespace galgebra
   proto::terminal<e_<6> >::type e_6 = {};
   proto::terminal<e_<7> >::type e_7 = {};
 
+  struct basis
+    : proto::or_<
+    vector
+    ,proto::function<proto::vararg<vector> >
+    >
+  {};
+  //distributive law (multiplies over plus) to expand expressions
   struct distributive
     : proto::or_<
     proto::when<
@@ -107,34 +115,7 @@ namespace galgebra
     ,proto::nary_expr<proto::_, proto::vararg<distributive> >
     >
   {};
-
-  struct galgebra_grammar
-    : proto::or_<
-    scalar
-    ,vector
-    ,proto::multiplies<galgebra_grammar, galgebra_grammar>
-    ,proto::plus<galgebra_grammar, galgebra_grammar>
-    ,proto::minus<galgebra_grammar, galgebra_grammar>
-    >
-  {};
-
-  template <typename Expression>
-  bool check_grammar(const Expression& expression) {
-    BOOST_MPL_ASSERT((proto::matches<Expression, galgebra_grammar>));
-    return true;
-  }
-
-  template<typename Metric>
-  struct contract
-    : proto::if_<mpl::greater_equal<g<Metric,value(proto::_left),value(proto::_right)>
-				    ,mpl::int_<0> >()
-		 // g[I,I] >= 0
-		 ,proto::_make_unary_plus(g<Metric,value(proto::_left),value(proto::_right)>())
-		 // g[I,I] < 0
-		 ,proto::_make_negate(mpl::negate<g<Metric,value(proto::_left),value(proto::_right)> >())
-		 >
-  {};
-
+  //simplification algorithm
   template<typename Metric>
   struct revise
     : proto::if_<mpl::equal_to<g<Metric,value(proto::_left),value(proto::_right)>
@@ -166,13 +147,71 @@ namespace galgebra
 							,value(proto::_right)
 							>()
 					  // I == J
-					  ,proto::call<contract<Metric> >()
+					  ,proto::_make_terminal(g<Metric,value(proto::_left),value(proto::_right)>() )
 					  // J > I
-					  ,proto::_expr
+					  ,proto::_
 					  >
 			      >
 		  >
   {};
+  //group together multiplied elements to perform the simplification algorithm
+  struct mult
+    : proto::or_<
+    //initialize fusion::cons
+    proto::when<scalar
+		,fusion::cons<proto::_value, proto::_state>(proto::_value, proto::_state)
+		>
+    ,proto::when<vector
+		,fusion::cons<proto::_value, proto::_state>(proto::_value, proto::_state)
+		>
+    //add at the end, a vector
+    ,proto::when<proto::multiplies<mult, vector>
+		 ,mult(proto::_left
+		       ,mult(proto::_right, proto::_state))
+		 >
+    ,proto::when<proto::multiplies<vector, mult>
+		 ,mult(proto::_right
+		       ,mult(proto::_left, proto::_state))
+		 >
+    //add at the front, a scalar
+    ,proto::when<proto::multiplies<mult, scalar>
+		 ,mult(proto::_right
+		       ,mult(proto::_left, proto::_state))
+		 >
+    ,proto::when<proto::multiplies<scalar, mult>
+		 ,mult(proto::_left
+		       ,mult(proto::_right, proto::_state))
+		 >
+    >
+  {};
+  struct group
+    : proto::or_<
+    //build a function from the data structure fusion::cons
+    proto::when<mult
+		,proto::functional::unpack_expr<proto::tag::function>(mult(proto::_, fusion::nil()))
+		>
+    ,proto::plus<group, group>
+    >
+  {};
+  //valid expressions
+  //geometric algebra simplified expressions are following this grammar after simplification and expansion
+  struct gexpression
+    : proto::or_<
+    scalar
+    ,basis
+    ,proto::multiplies<scalar, basis>
+    ,proto::when<proto::multiplies<basis, scalar>
+		 ,proto::_make_multiplies(proto::_right, proto::_left) >
+    ,proto::plus<gexpression, gexpression>
+    ,proto::minus<gexpression, gexpression>
+    >
+  {};
+
+  template <typename Expression>
+  bool check_grammar(const Expression& expression) {
+    BOOST_MPL_ASSERT((proto::matches<Expression,gexpression>));
+    return true;
+  }
 
 };
 
@@ -203,7 +242,7 @@ proto::terminal< galgebra::e_<4> >::type gamma_w = {};
 #define theRevisionXY (gamma_x*gamma_y)
 #define theRevisionYX (gamma_y*gamma_x)
 #define theContraction (gamma_z*gamma_z)
-#define theDistribution ((gamma_x+gamma_t)*(gamma_w*gamma_x))
+#define theDistribution ((gamma_x+gamma_t)*(gamma_w+gamma_x))
 
 int main(int argc, char* argv[])
 {
@@ -213,15 +252,15 @@ int main(int argc, char* argv[])
   std::cout << "g[4,4]="  << galgebra::g_c<metric,4,4>::value << std::endl;
   std::cout << "g[4,4]="  << galgebra::g  <metric,galgebra::e_<4>,galgebra::e_<4> >::value << std::endl;
 
-  proto::display_expr(galgebra::contract_revise<metric>()theRevisionXY);
+  proto::display_expr(galgebra::group()theRevisionXY);
 
   std::cout << std::endl;
 
-  proto::display_expr(galgebra::contract_revise<metric>()theRevisionYX);
+  proto::display_expr(galgebra::group()theRevisionYX);
 
   std::cout << std::endl;
 
-  proto::display_expr(galgebra::contract_revise<metric>()theContraction);
+  proto::display_expr(galgebra::group()theContraction);
 
   std::cout << std::endl;
 
@@ -236,7 +275,11 @@ int main(int argc, char* argv[])
   std::cout << std::endl;
 
   proto::display_expr(theDistribution);
-  proto::display_expr(galgebra::galgebra_grammar()theDistribution);
+  proto::display_expr(galgebra::distributive()theDistribution);
+
+  std::cout << std::endl;
+
+  proto::display_expr(galgebra::group()theTest);
 
   std::cout << std::endl;
 
