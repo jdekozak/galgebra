@@ -1,20 +1,8 @@
 #include <iostream>
-#include <iomanip>
 
 #include <galgebra.hpp>
 
-#include <boost/fusion/algorithm.hpp>
-#include <boost/fusion/include/as_vector.hpp>
-namespace fusion = boost::fusion;
-
 namespace galgebra {
-  struct display_value {
-     typedef void result_type;
-     template<typename Item>
-     void operator()(Item i) const {
-       std::cout << std::setiosflags(std::ios::right) << std::setw(3) << i;
-     }
-   };
   struct SomeAction : proto::callable {
      typedef void result_type;
      template<typename Sequence>
@@ -46,22 +34,24 @@ typedef mpl::vector<row_0
 		    > metric;
 
 int main(int argc, char* argv[]) {
-  fusion::for_each(fusion::as_vector(row_0()), galgebra::display_value());
-  std::cout << std::endl;
-  fusion::for_each(fusion::as_vector(row_1()), galgebra::display_value());
-  std::cout << std::endl;
-  fusion::for_each(fusion::as_vector(row_2()), galgebra::display_value());
-  std::cout << std::endl;
-  fusion::for_each(fusion::as_vector(row_3()), galgebra::display_value());
-  std::cout << std::endl;
-  fusion::for_each(fusion::as_vector(row_4()), galgebra::display_value());
-  std::cout << std::endl;
+  galgebra::display_metric<metric>()();
   std::cout << "********************************" << std::endl;
   
   std::cout << "dimension G(1,4) = " << galgebra::dimension<metric>::value << std::endl;
   std::cout << "g[0,0]= " << galgebra::g_c<metric,0,0>::value << std::endl;
   std::cout << "g[4,4]="  << galgebra::g_c<metric,4,4>::value << std::endl;
   std::cout << "g[4,4]="  << galgebra::g  <metric,galgebra::e_<4>,galgebra::e_<4> >::value << std::endl;
+
+  std::cout << "********************************" << std::endl;
+  galgebra::is_not_multivector(galgebra::e_2*3*galgebra::e_3*(galgebra::e_1+galgebra::e_2*galgebra::e_3-galgebra::e_3*galgebra::e_4));
+  std::cout << "********************************" << std::endl;
+  galgebra::is_multivector    (galgebra::e_2*3*galgebra::e_3*galgebra::e_1+galgebra::e_2*galgebra::e_3-galgebra::e_3*galgebra::e_4);
+  std::cout << "********************************" << std::endl;
+  galgebra::is_multivector    (galgebra::e_2);
+  std::cout << "********************************" << std::endl;
+  galgebra::is_multivector    (galgebra::e_2*3);
+  std::cout << "********************************" << std::endl;
+  galgebra::is_multivector    (galgebra::e_2*galgebra::e_3+2);
 
   std::cout << "********************************" << std::endl;
   proto::display_expr(theExpandable);
@@ -83,10 +73,6 @@ int main(int argc, char* argv[]) {
   proto::display_expr(theRecursiveNothingTest);
   proto::display_expr(galgebra::contract_revise<metric>()(theRecursiveNothingTest));
   std::cout << "********************************" << std::endl;
-
-  galgebra::check_grammar(galgebra::e_1);
-  galgebra::check_grammar(theReviseTest);
-  galgebra::check_grammar(theNothingTest);
 
   proto::display_expr(galgebra::e_3*galgebra::e_2);
   proto::display_expr(galgebra::contract_revise<metric>()(galgebra::e_3*galgebra::e_2));
