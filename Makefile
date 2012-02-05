@@ -1,12 +1,4 @@
-PLATFORM := $(shell uname)
-
-ifeq ($(PLATFORM),Darwin)
-BOOST_INCLUDE_DIRECTORY=/sw/include/boost-1_41
-endif
-
-ifeq ($(PLATFORM),Linux)
-BOOST_INCLUDE_DIRECTORY=/usr/include
-endif
+BOOST_INCLUDE_DIRECTORY=./boost-svn
 
 all: galgebra
 	./galgebra
