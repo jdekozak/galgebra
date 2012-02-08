@@ -12,6 +12,8 @@
 #include <boost/mpl/vector.hpp>
 #include <boost/mpl/vector_c.hpp>
 #include <boost/mpl/int.hpp>
+#include <boost/mpl/greater.hpp>
+#include <boost/mpl/less_equal.hpp>
 
 #include <boost/fusion/algorithm.hpp>
 #include <boost/fusion/include/as_vector.hpp>
@@ -64,122 +66,104 @@ namespace galgebra {
   //symbols
   template<int Index>
   struct x_
-    : mpl::int_<Index>
   {
+    static const int value = Index;
     friend std::ostream &operator <<(std::ostream &p_output, x_<Index> ) {
       return (p_output << "x_" << Index);
     }
   };
-
   //vectors
   template<int Index>
   struct e_
-    : mpl::int_<Index>
   {
+    static const int value = Index;
     friend std::ostream &operator <<(std::ostream &p_output, e_<Index> ) {
       return (p_output << "e_" << Index);
     }
   };
-
+  template<typename T1, typename T2>
+  struct greater
+    : mpl::greater<mpl::int_<T1::value>, mpl::int_<T2::value> >
+  {};
+  template<typename T1, typename T2>
+  struct less_equal
+    : mpl::less_equal<mpl::int_<T1::value>, mpl::int_<T2::value> >
+  {};
   //proto terminal structures
   //proto scalar
-  struct scalar
+  struct scalar_terminal
     : proto::terminal<proto::convertible_to<double> >
   {};
   //proto vectors
 #define TERMINAL_VECTOR(z,N,data)		\
   proto::terminal<e_<N> >
-  struct vector
+  struct vector_terminal
     : proto::or_<
     BOOST_PP_ENUM(GALGEBRA_MAXIMUM_DIMENSIONS, TERMINAL_VECTOR, _)
     >
   {};
 #define PREDEFINED_TERMINALS(z,N,data)		\
-  proto::terminal<e_<N> >::type const e_##N = {};
+  proto::terminal<e_<N> >::type const e_##N = {{}};
   BOOST_PP_REPEAT(GALGEBRA_MAXIMUM_DIMENSIONS, PREDEFINED_TERMINALS, _)
   //proto symbols
 #define TERMINAL_SYMBOL(z,N,data)		\
   proto::terminal<x_<N> >
-  struct symbol
+  struct symbol_terminal
     : proto::or_<
     BOOST_PP_ENUM(GALGEBRA_MAXIMUM_DIMENSIONS, TERMINAL_SYMBOL, _)
     >
   {};
 #define PREDEFINED_SYMBOLS(z,N,data)		\
-  proto::terminal<x_<N> >::type const x_##N = {};
+  proto::terminal<x_<N> >::type const x_##N = {{}};
   BOOST_PP_REPEAT(GALGEBRA_MAXIMUM_DIMENSIONS, PREDEFINED_SYMBOLS, _)
 
   //proto non terminal structures
-  struct basis
+  struct gterminal
     : proto::or_<
-    vector
-    ,proto::multiplies<basis, basis>
+    scalar_terminal
+    ,vector_terminal
+    ,symbol_terminal
     >
   {};
-  struct coefficient
+  struct gexpression_grammar
     : proto::or_<
-    scalar
-    ,proto::multiplies<coefficient, coefficient>
-    >
-  {};
-  struct weighted_basis
-    : proto::or_<
-    proto::multiplies<coefficient, basis>
-    ,proto::multiplies<basis, coefficient>
-    ,proto::multiplies<weighted_basis, weighted_basis>
+    gterminal
+    ,proto::multiplies<gexpression_grammar, gexpression_grammar>
+    ,proto::divides<gexpression_grammar, gexpression_grammar>
+    ,proto::plus<gexpression_grammar, gexpression_grammar>
+    ,proto::minus<gexpression_grammar, gexpression_grammar>
+    ,proto::negate<gexpression_grammar>
     >
   {};
 
-  //multivector expressions = linear combination of bases
-  struct multivector
-    : proto::or_<
-    coefficient
-    ,basis
-    ,weighted_basis
-    ,proto::plus<multivector, multivector>
-    ,proto::minus<multivector, multivector>
-    >
+  //gexpression wrapper forward declaration
+  template<typename Expression>
+  struct gexpression;
+  //gexpression domain
+  struct gexpression_domain
+    : proto::domain< proto::pod_generator<gexpression>, gexpression_grammar>
   {};
+  //gexpression wrapper
+  template<typename Expression>
+  struct gexpression
+  {
+    BOOST_PROTO_EXTENDS(Expression, gexpression<Expression>, gexpression_domain)
+  };
 
   template <typename Expression>
-  bool is_multivector(const Expression& expression) {
-    BOOST_MPL_ASSERT((proto::matches<Expression,multivector>));
-    std::cout << "IS MULTIVECTOR" << std::endl;
+  bool is_gexpression(const Expression& expression) {
+    BOOST_MPL_ASSERT((proto::matches<Expression,gexpression_grammar>));
+    std::cout << "IS GEXPRESSION" << std::endl;
     proto::display_expr(expression);
     return true;
   }
   template <typename Expression>
-  bool is_not_multivector(const Expression& expression) {
-    BOOST_MPL_ASSERT_NOT((proto::matches<Expression,multivector>));
-    std::cout << "IS NOT MULTIVECTOR" << std::endl;
+  bool is_not_gexpression(const Expression& expression) {
+    BOOST_MPL_ASSERT_NOT((proto::matches<Expression,gexpression_grammar>));
+    std::cout << "IS NOT GEXPRESSION" << std::endl;
     proto::display_expr(expression);
     return true;
   }
-
-
-  //really needed ??
-  template<typename T>
-  struct is_symbol
-    : mpl::false_
-  {};
-#define IS_SYMBOL(z,N,data)			\
-  template<>					\
-  struct is_symbol<x_<N> >			\
-    : mpl::true_				\
-  {};
-  BOOST_PP_REPEAT(GALGEBRA_MAXIMUM_DIMENSIONS, IS_SYMBOL, _);
-
-  template<typename T>
-  struct is_vector
-    : public mpl::false_
-  {};
-#define IS_VECTOR(z,N,data)			\
-  template<>					\
-  struct is_vector<e_<N> >			\
-    : mpl::true_				\
-  {};
-  BOOST_PP_REPEAT(GALGEBRA_MAXIMUM_DIMENSIONS, IS_VECTOR, _);
-
 }
 
 #endif //__CORE_HPP__

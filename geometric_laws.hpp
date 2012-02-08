@@ -1,10 +1,12 @@
 #include <core.hpp>
 
-#include <boost/mpl/less_equal.hpp>
-
 namespace galgebra {
   struct _revise_contract : proto::transform<_revise_contract >
   {
+    // Expression = e_Left
+    // State = e_Right
+    // Data = g
+
     //general case, different vectors, not orthogonal, metric must be diagonal
     template<typename Expression, typename State, typename Data>
     struct impl : proto::transform_impl<Expression, State, Data>
@@ -74,41 +76,41 @@ namespace galgebra {
   template<typename Metric>
   struct contract_revise
     : proto::or_<
-    proto::when<proto::multiplies<vector,vector>
-		,proto::if_<mpl::less_equal<proto::functional::value(proto::_right)
-					    ,proto::functional::value(proto::_left)
-					    >()
+    proto::when<proto::multiplies<vector_terminal,vector_terminal>
+		,proto::if_<less_equal<proto::_value(proto::_right)
+				       ,proto::_value(proto::_left)
+				       >()
 			    ,_revise_contract(proto::_left
 					      ,proto::_right
 					      ,g<Metric
-						 ,proto::functional::value(proto::_left)
-					         ,proto::functional::value(proto::_right)>()
+					         ,proto::_value(proto::_left)
+					         ,proto::_value(proto::_right)>()
 					      )
 			    >
 		>
-    ,proto::when<proto::multiplies<proto::multiplies<proto::_, vector>, vector>
-		 ,proto::if_<mpl::less_equal<proto::functional::value(proto::_right)
-					     ,proto::functional::value(proto::_right(proto::_left))
-					     >()
+    ,proto::when<proto::multiplies<proto::multiplies<proto::_, vector_terminal>, vector_terminal>
+		 ,proto::if_<less_equal<proto::_value(proto::_right)
+					,proto::_value(proto::_right(proto::_left))
+					>()
 			     ,proto::_make_multiplies(proto::_left(proto::_left)
 						      ,_revise_contract(proto::_right(proto::_left)
 									,proto::_right
 									,g<Metric
-									   ,proto::functional::value(proto::_right(proto::_left))
-									   ,proto::functional::value(proto::_right)>()
+									   ,proto::_value(proto::_right(proto::_left))
+									   ,proto::_value(proto::_right)>()
 						                        )
 						      )
 			     >
 		 >
-    ,proto::when<proto::multiplies<vector, proto::multiplies<vector, proto::_> >
-		 ,proto::if_<mpl::less_equal<proto::functional::value(proto::_left(proto::_right))
-					     ,proto::functional::value(proto::_left)
-					     >()
+    ,proto::when<proto::multiplies<vector_terminal, proto::multiplies<vector_terminal, proto::_> >
+		 ,proto::if_<less_equal<proto::_value(proto::_left(proto::_right))
+					,proto::_value(proto::_left)
+					>()
 			     ,proto::_make_multiplies(_revise_contract(proto::_left
 								       ,proto::_left(proto::_right)
 								       ,g<Metric
-								          ,proto::functional::value(proto::_left)
-								          ,proto::functional::value(proto::_left(proto::_right))>()
+								          ,proto::_value(proto::_left)
+								          ,proto::_value(proto::_left(proto::_right))>()
 								       )
 						      ,proto::_right(proto::_right)
 						      )

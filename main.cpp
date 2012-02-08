@@ -43,17 +43,6 @@ int main(int argc, char* argv[]) {
   std::cout << "g[4,4]="  << galgebra::g  <metric,galgebra::e_<4>,galgebra::e_<4> >::value << std::endl;
 
   std::cout << "********************************" << std::endl;
-  galgebra::is_not_multivector(galgebra::e_2*3*galgebra::e_3*(galgebra::e_1+galgebra::e_2*galgebra::e_3-galgebra::e_3*galgebra::e_4));
-  std::cout << "********************************" << std::endl;
-  galgebra::is_multivector    (galgebra::e_2*3*galgebra::e_3*galgebra::e_1+galgebra::e_2*galgebra::e_3-galgebra::e_3*galgebra::e_4);
-  std::cout << "********************************" << std::endl;
-  galgebra::is_multivector    (galgebra::e_2);
-  std::cout << "********************************" << std::endl;
-  galgebra::is_multivector    (galgebra::e_2*3);
-  std::cout << "********************************" << std::endl;
-  galgebra::is_multivector    (galgebra::e_2*galgebra::e_3+2);
-
-  std::cout << "********************************" << std::endl;
   proto::display_expr(theExpandable);
   proto::display_expr(cas::distributive()(theExpandable));
   std::cout << "********************************" << std::endl;
@@ -83,7 +72,7 @@ int main(int argc, char* argv[]) {
   proto::display_expr(galgebra::e_3*(galgebra::e_2*galgebra::e_1));
   proto::display_expr(galgebra::contract_revise<metric>()(galgebra::e_3*(galgebra::e_2*galgebra::e_1)));
   std::cout << "********************************" << std::endl;
-
+  /*
 #define theTest       galgebra::e_2*-galgebra::e_3*(-galgebra::e_1*-galgebra::e_2+(-(galgebra::e_3*galgebra::e_4)))
   proto::display_expr(theTest);
   proto::display_expr(cas::prune_negate()(theTest));
@@ -93,6 +82,6 @@ int main(int argc, char* argv[]) {
   std::cout << "********************************" << std::endl;
   proto::display_expr(-(-galgebra::e_1*galgebra::e_2*galgebra::e_3));
   proto::display_expr(cas::prune_negate() (-(-galgebra::e_1*galgebra::e_2*galgebra::e_3)));
-
+  */
   return 0;
 }
