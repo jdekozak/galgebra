@@ -102,9 +102,6 @@ namespace galgebra {
     BOOST_PP_ENUM(GALGEBRA_MAXIMUM_DIMENSIONS, TERMINAL_VECTOR, _)
     >
   {};
-#define PREDEFINED_TERMINALS(z,N,data)		\
-  proto::terminal<e_<N> >::type const e_##N = {{}};
-  BOOST_PP_REPEAT(GALGEBRA_MAXIMUM_DIMENSIONS, PREDEFINED_TERMINALS, _)
   //proto symbols
 #define TERMINAL_SYMBOL(z,N,data)		\
   proto::terminal<x_<N> >
@@ -113,11 +110,8 @@ namespace galgebra {
     BOOST_PP_ENUM(GALGEBRA_MAXIMUM_DIMENSIONS, TERMINAL_SYMBOL, _)
     >
   {};
-#define PREDEFINED_SYMBOLS(z,N,data)		\
-  proto::terminal<x_<N> >::type const x_##N = {{}};
-  BOOST_PP_REPEAT(GALGEBRA_MAXIMUM_DIMENSIONS, PREDEFINED_SYMBOLS, _)
 
-  //proto non terminal structures
+  //geometric algebra grammar
   struct gterminal
     : proto::or_<
     scalar_terminal
@@ -149,6 +143,12 @@ namespace galgebra {
   {
     BOOST_PROTO_EXTENDS(Expression, gexpression<Expression>, gexpression_domain)
   };
+#define PREDEFINED_TERMINALS(z,N,data)		\
+  gexpression<proto::terminal<e_<N> >::type> const e_##N = {{{}}};
+  BOOST_PP_REPEAT(GALGEBRA_MAXIMUM_DIMENSIONS, PREDEFINED_TERMINALS, _)
+#define PREDEFINED_SYMBOLS(z,N,data)		\
+  gexpression<proto::terminal<x_<N> >::type> const x_##N = {{{}}};
+  BOOST_PP_REPEAT(GALGEBRA_MAXIMUM_DIMENSIONS, PREDEFINED_SYMBOLS, _)
 
   template <typename Expression>
   bool is_gexpression(const Expression& expression) {
