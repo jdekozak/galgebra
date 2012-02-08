@@ -13,11 +13,15 @@ namespace galgebra {
 }
 
 #define theContractTest galgebra::e_1*galgebra::e_1
+#define theContractTestSolution proto::lit(-1)
 #define theReviseTest galgebra::e_2*galgebra::e_1
+#define theReviseTestSolution -(galgebra::e_1*galgebra::e_2)
 #define theNothingTest galgebra::e_1*galgebra::e_2
 #define theRecursiveTest galgebra::e_1*galgebra::e_2*galgebra::e_1
+#define theRecursiveTestSolution galgebra::e_1*(-galgebra::e_1*galgebra::e_2)
 #define theRecursiveNothingTest galgebra::e_1*galgebra::e_2*galgebra::e_3
 #define theExpandable (galgebra::e_2+galgebra::e_1)*(galgebra::e_1+galgebra::e_2)
+#define theExpandableSolution galgebra::e_2*galgebra::e_1 + galgebra::e_2*galgebra::e_2 + galgebra::e_1*galgebra::e_1 + galgebra::e_1*galgebra::e_2
 
 //metric
 typedef mpl::vector_c<int, 1, 0, 0, 0, 0> row_0;
@@ -47,41 +51,23 @@ int main(int argc, char* argv[]) {
   proto::display_expr(cas::distributive()(theExpandable));
   std::cout << "********************************" << std::endl;
 
+  galgebra::contract_revise<metric> contract_and_revise;
+
   proto::display_expr(theContractTest);
-  proto::display_expr(galgebra::contract_revise<metric>()(theContractTest));
+  proto::display_expr(contract_and_revise(theContractTest));
   std::cout << "********************************" << std::endl;
   proto::display_expr(theReviseTest);
-  proto::display_expr(galgebra::contract_revise<metric>()(theReviseTest));
+  proto::display_expr(contract_and_revise(theReviseTest));
   std::cout << "********************************" << std::endl;
   proto::display_expr(theNothingTest);
-  proto::display_expr(galgebra::contract_revise<metric>()(theNothingTest));
+  proto::display_expr(contract_and_revise(theNothingTest));
   std::cout << "********************************" << std::endl;
   proto::display_expr(theRecursiveTest);
-  proto::display_expr(galgebra::contract_revise<metric>()(theRecursiveTest));
+  proto::display_expr(contract_and_revise(theRecursiveTest));
   std::cout << "********************************" << std::endl;
   proto::display_expr(theRecursiveNothingTest);
-  proto::display_expr(galgebra::contract_revise<metric>()(theRecursiveNothingTest));
+  proto::display_expr(contract_and_revise(theRecursiveNothingTest));
   std::cout << "********************************" << std::endl;
 
-  proto::display_expr(galgebra::e_3*galgebra::e_2);
-  proto::display_expr(galgebra::contract_revise<metric>()(galgebra::e_3*galgebra::e_2));
-  std::cout << "********************************" << std::endl;
-  proto::display_expr(galgebra::e_3*galgebra::e_2*galgebra::e_1);
-  proto::display_expr(galgebra::contract_revise<metric>()(galgebra::e_3*galgebra::e_2*galgebra::e_1));
-  std::cout << "********************************" << std::endl;
-  proto::display_expr(galgebra::e_3*(galgebra::e_2*galgebra::e_1));
-  proto::display_expr(galgebra::contract_revise<metric>()(galgebra::e_3*(galgebra::e_2*galgebra::e_1)));
-  std::cout << "********************************" << std::endl;
-  /*
-#define theTest       galgebra::e_2*-galgebra::e_3*(-galgebra::e_1*-galgebra::e_2+(-(galgebra::e_3*galgebra::e_4)))
-  proto::display_expr(theTest);
-  proto::display_expr(cas::prune_negate()(theTest));
-  std::cout << "********************************" << std::endl;
-  proto::display_expr(-(-galgebra::e_2*galgebra::e_3));
-  proto::display_expr(cas::prune_negate()(-(-galgebra::e_2*galgebra::e_3)));
-  std::cout << "********************************" << std::endl;
-  proto::display_expr(-(-galgebra::e_1*galgebra::e_2*galgebra::e_3));
-  proto::display_expr(cas::prune_negate() (-(-galgebra::e_1*galgebra::e_2*galgebra::e_3)));
-  */
   return 0;
 }
