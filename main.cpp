@@ -18,10 +18,10 @@ namespace galgebra {
 #define theReviseTestSolution -(galgebra::e_1*galgebra::e_2)
 #define theNothingTest galgebra::e_1*galgebra::e_2
 #define theRecursiveTest galgebra::e_1*galgebra::e_2*galgebra::e_1
-#define theRecursiveTestSolution galgebra::e_1*(-galgebra::e_1*galgebra::e_2)
+#define theRecursiveTestSolution galgebra::e_1*-(galgebra::e_1*galgebra::e_2)
 #define theRecursiveNothingTest galgebra::e_1*galgebra::e_2*galgebra::e_3
 #define theExpandable (galgebra::e_2+galgebra::e_1)*(galgebra::e_1+galgebra::e_2)
-#define theExpandableSolution galgebra::e_2*galgebra::e_1 + galgebra::e_2*galgebra::e_2 + galgebra::e_1*galgebra::e_1 + galgebra::e_1*galgebra::e_2
+#define theExpandableSolution (galgebra::e_2*galgebra::e_1 + galgebra::e_1*galgebra::e_1) + (galgebra::e_2*galgebra::e_2 + galgebra::e_1*galgebra::e_2)
 
 //metric
 typedef mpl::vector_c<int, 1, 0, 0, 0, 0> row_0;
@@ -49,21 +49,25 @@ int main(int argc, char* argv[]) {
   std::cout << "********************************" << std::endl;
   proto::display_expr(theExpandable);
   proto::display_expr(cas::distributive()(theExpandable));
+  proto::display_expr(theExpandableSolution);
   std::cout << "********************************" << std::endl;
 
   galgebra::contract_revise<metric> contract_and_revise;
 
   proto::display_expr(theContractTest);
   proto::display_expr(contract_and_revise(theContractTest));
+  proto::display_expr(theContractTestSolution);
   std::cout << "********************************" << std::endl;
   proto::display_expr(theReviseTest);
   proto::display_expr(contract_and_revise(theReviseTest));
+  proto::display_expr(theReviseTestSolution);
   std::cout << "********************************" << std::endl;
   proto::display_expr(theNothingTest);
   proto::display_expr(contract_and_revise(theNothingTest));
   std::cout << "********************************" << std::endl;
   proto::display_expr(theRecursiveTest);
   proto::display_expr(contract_and_revise(theRecursiveTest));
+  proto::display_expr(theRecursiveTestSolution);
   std::cout << "********************************" << std::endl;
   proto::display_expr(theRecursiveNothingTest);
   proto::display_expr(contract_and_revise(theRecursiveNothingTest));
