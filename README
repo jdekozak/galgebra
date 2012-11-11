@@ -13,3 +13,11 @@ http://gravisma.zcu.cz/GraVisMa-2010/Papers/Tutorial/F02-full.pdf
 
 7/ Python.SymPy.Galgebra module already decribes all needed algorithms
 http://docs.sympy.org/dev/modules/galgebra/GA/GAsympy.html
+
+Restart :
+1/ internal representation now makes use of fusion::pair and fusion::map
+2/ internal representation is based on blades
+3/ code tries to use c++11 features
+=> template alias
+=> feature request : fusion moves to variadic templates to avoid macros for maximum arity, map max size...
+4/ test uses Boot.Test
