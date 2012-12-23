@@ -1,2 +1,6 @@
+.DS_Store
+.sconsign.dblite
 test_galgebra
-test.o
+tune_map
+*.o
+*~
