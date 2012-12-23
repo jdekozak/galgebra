@@ -22,16 +22,16 @@
 
 namespace galgebra {
   //user interface
-  template<typename METRIC = physics_5D::metric
-	   ,typename VALUE_TYPE = physics_5D::value_type
-	   ,typename BASE_SYMBOLS = physics_5D::base_symbols
-	   ,typename VARIABLE_SYMBOLS = physics_5D::variable_symbols
+  template<typename Metric = physics_5D::metric
+	   ,typename ValueType = physics_5D::value_type
+	   ,typename BaseSymbols = physics_5D::base_symbols
+	   ,typename VariableSymbols = physics_5D::variable_symbols
 	   >
   struct algebra {
-    typedef METRIC metric;
-    typedef VALUE_TYPE value_type;
-    typedef BASE_SYMBOLS base_symbols;
-    typedef VARIABLE_SYMBOLS variable_symbols;
+    typedef Metric metric;
+    typedef ValueType value_type;
+    typedef BaseSymbols base_symbols;
+    typedef VariableSymbols variable_symbols;
     //dimension
     typedef typename dimension<metric>::type dimension;
     //metric getters
@@ -45,22 +45,25 @@ namespace galgebra {
     template<std::size_t Bitfield>
     using blade_c = types::blade_c<Bitfield, value_type>;
     //get_blade_c
-    template <std::size_t BLADE, typename MULTIVECTOR>
-    static value_type get_blade_c(const MULTIVECTOR& mv) {
-      static_assert(boost::fusion::result_of::has_key<MULTIVECTOR, boost::mpl::integral_c<size_t,BLADE> >::value,"This blade is not in multivector");
-      return boost::fusion::at_key<boost::mpl::integral_c<size_t,BLADE> >(mv);
+    template <std::size_t Blade, typename Multivector>
+    static value_type get_blade_c(const Multivector& mv) {
+      static_assert(boost::fusion::result_of::has_key<Multivector, boost::mpl::integral_c<size_t,Blade> >::value,"This blade is not in multivector");
+      types::blade_c<Blade, value_type> blade = boost::fusion::at_key<boost::mpl::integral_c<size_t,Blade> >(mv);
+      return blade.second;
     }
-    template <std::size_t BLADE>
-    static value_type get_blade_c(const types::blade_c<BLADE, value_type>& blade) {
+    template <std::size_t Blade>
+    static value_type get_blade_c(const types::blade_c<Blade, value_type>& blade) {
       return blade.second;
     }
     //grammar
     typedef expression_templates::grammar<metric, value_type, base_symbols> grammar; 
+
     //base
     template <typename N>
-    using base = types::base<metric, base_symbols, N>;
+    using base = types::base<metric, value_type, base_symbols, N>;
     template <std::size_t N>
-    using base_c = types::base_c<metric, base_symbols, N>;
+    using base_c = types::base_c<metric, value_type, base_symbols, N>;
+
     //vector
     typedef typename types::vector<metric, value_type>::type vector;
   };

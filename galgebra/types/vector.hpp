@@ -3,14 +3,14 @@
 
 #include <boost/mpl/fold.hpp>
 #include <boost/mpl/range_c.hpp>
-#include <boost/mpl/vector.hpp>
-#include <boost/mpl/push_back.hpp>
 #include <boost/mpl/int.hpp>
 #include <boost/mpl/lambda.hpp>
+#include <boost/mpl/push_back.hpp>
 
 #include "../dimension.hpp"
 #include "./blade.hpp"
 #include "../utility/numeric.hpp"
+#include "../types/multivector.hpp"
 
 namespace galgebra {
   namespace types {
@@ -22,7 +22,7 @@ namespace galgebra {
       typedef typename boost::mpl::fold<boost::mpl::range_c<size_t
 							    ,0
 							    ,dimension<metric>::value>
-					,boost::mpl::vector<>
+					,multivector<>
 					,boost::mpl::push_back<boost::mpl::_1
 							       ,blade<boost::mpl::lambda<numeric::power<boost::mpl::integral_c<size_t,2>
 													,boost::mpl::_2

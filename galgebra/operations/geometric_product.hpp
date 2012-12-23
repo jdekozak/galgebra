@@ -16,86 +16,252 @@ namespace galgebra {
     struct product_multivectors
       : boost::proto::callable
     {
-      template <typename SIGNATURE>
+      //compile time
+      template <typename Signature>
       struct result;
-      template <typename THIS, typename LHS_MULTIVECTOR, typename RHS_MULTIVECTOR>
-      struct result<THIS(LHS_MULTIVECTOR, RHS_MULTIVECTOR)> {
-	typedef LHS_MULTIVECTOR type;
+      template <typename This
+		,typename LhsMultivector
+		,typename RhsMultivector
+		,typename Metric
+		,typename ValueType>
+      struct result<This(LhsMultivector
+			 ,RhsMultivector
+			 ,Metric
+			 ,ValueType)> {
+	typedef LhsMultivector type;
       };
-      template<typename LHS_MULTIVECTOR, typename RHS_MULTIVECTOR>
-      typename result<product_multivectors(LHS_MULTIVECTOR, RHS_MULTIVECTOR)>::type operator()(const LHS_MULTIVECTOR& lhs, const RHS_MULTIVECTOR& rhs) const {
-	return typename result<product_multivectors(LHS_MULTIVECTOR, RHS_MULTIVECTOR)>::type(lhs);
+      //base*mv
+      template<typename This
+	       ,std::size_t BitField
+	       ,typename RhsMultivector
+	       ,typename Metric
+	       ,typename ValueType>
+      struct result<This(types::blade_c<BitField, ValueType>
+			 ,RhsMultivector
+			 ,Metric
+			 ,ValueType)> {
+	typedef RhsMultivector type;
+      };
+      //scalar*mv
+      template<typename This
+	       ,typename RhsMultivector
+	       ,typename Metric
+	       ,typename ValueType>
+      struct result<This(types::blade_c<0, ValueType>
+			 ,RhsMultivector
+			 ,Metric
+			 ,ValueType)> {
+	typedef RhsMultivector type;
+      };
+      //runtime
+      template<typename LhsMultivector
+	       ,typename RhsMultivector
+	       ,typename Metric
+	       ,typename ValueType>
+      typename result<product_multivectors(LhsMultivector
+					   ,RhsMultivector
+					   ,Metric
+					   ,ValueType)>::type operator()(const LhsMultivector& lhs
+									 ,const RhsMultivector& rhs
+									 ,const Metric&
+									 ,const ValueType&) const {
+	return typename result<product_multivectors(LhsMultivector
+						    ,RhsMultivector
+						    ,Metric
+						    ,ValueType)>::type(lhs);
+      }
+      //base*mv
+      template<std::size_t BitField
+	       ,typename RhsMultivector
+	       ,typename Metric
+	       ,typename ValueType>
+      typename result<product_multivectors(types::blade_c<BitField, ValueType>
+					   ,RhsMultivector
+					   ,Metric
+					   ,ValueType)>::type operator()(const types::blade_c<BitField, ValueType>& lhs
+									 ,const RhsMultivector& rhs
+									 ,const Metric&
+									 ,const ValueType&) const {
+	return typename result<product_multivectors(types::blade_c<BitField, ValueType>
+						    ,RhsMultivector
+						    ,Metric
+						    ,ValueType)>::type(rhs);
+      }
+      //scalar*mv
+      template<typename RhsMultivector
+	       ,typename Metric
+	       ,typename ValueType>
+      typename result<product_multivectors(types::blade_c<0, ValueType>
+					   ,RhsMultivector
+					   ,Metric
+					   ,ValueType)>::type operator()(const types::blade_c<0, ValueType>& lhs
+									 ,const RhsMultivector& rhs
+									 ,const Metric&
+									 ,const ValueType&) const {
+	return typename result<product_multivectors(types::blade_c<0, ValueType>
+						    ,RhsMultivector
+						    ,Metric
+						    ,ValueType)>::type(rhs);
       }
     };
-    template<typename Metric,
-	     typename ValueType>
+
     struct product_bases
       : boost::proto::callable
     {
-      typedef Metric metric;
-      typedef ValueType value_type;
       //compile-time part
-      template <typename SIGNATURE>
+      template <typename Signature>
       struct result;
-      template <typename THIS, typename LHS_BASE, typename RHS_BASE>
-      struct result<THIS(LHS_BASE, RHS_BASE)> {
-	typedef types::multivector<types::blade_c<0, value_type>, types::blade_c<(LHS_BASE::first_type::value ^ RHS_BASE::first_type::value), value_type> > type;
+      template <typename This
+		,typename LhsBase
+		,typename RhsBase
+		,typename Metric
+		,typename ValueType>
+      struct result<This(LhsBase
+			 ,RhsBase
+			 ,Metric
+			 ,ValueType)> {
+	typedef types::multivector<types::blade_c<0, ValueType>
+				   ,types::blade_c<(LhsBase::first_type::value ^ RhsBase::first_type::value)
+						   ,ValueType> > type;
       };
-      //specialization 0 : squared base
-      template <typename THIS, typename BASE>
-      struct result<THIS(BASE, BASE)> {
-	typedef types::multivector<types::blade_c<0, value_type> > type;
+      //squared base
+      template <typename This
+		,typename Base
+		,typename Metric
+		,typename ValueType>
+      struct result<This(Base
+			 ,Base
+			 ,Metric
+			 ,ValueType)> {
+	typedef types::multivector<types::blade_c<0, ValueType> > type;
       };
-      //specialization 1 : base*scalar
-      template<typename THIS, typename LHS_BASE>
-      struct result<THIS(LHS_BASE, types::blade_c<0, value_type>)> {
-	typedef types::multivector<LHS_BASE> type;
+      //base*scalar
+      template<typename This
+	       ,typename LhsBase
+	       ,typename Metric
+	       ,typename ValueType>
+      struct result<This(LhsBase
+			 ,types::blade_c<0, ValueType>
+			 ,Metric
+			 ,ValueType)> {
+	typedef types::multivector<LhsBase> type;
       };
-      //specialization 2 : scalar*base
-      template<typename THIS, typename RHS_BASE>
-      struct result<THIS(types::blade_c<0, value_type>, RHS_BASE)> {
-	typedef types::multivector<RHS_BASE> type;
+      //scalar*base
+      template<typename This
+	       ,typename RhsBase
+	       ,typename Metric
+	       ,typename ValueType>
+      struct result<This(types::blade_c<0, ValueType>
+			 ,RhsBase
+			 ,Metric
+			 ,ValueType)> {
+	typedef types::multivector<RhsBase> type;
       };
-      //specialization 3 : scalar*scalar
-      template <typename THIS>
-      struct result<THIS(types::blade_c<0, value_type>, types::blade_c<0, value_type>)> {
-	typedef types::multivector<types::blade_c<0, value_type> > type;
+      //scalar*scalar
+      template <typename This
+		,typename Metric
+		,typename ValueType>
+      struct result<This(types::blade_c<0, ValueType>
+			 ,types::blade_c<0, ValueType>
+			 ,Metric
+			 ,ValueType)> {
+	typedef types::multivector<types::blade_c<0, ValueType> > type;
       };
       //runtime part
-      template<typename LHS_BASE, typename RHS_BASE>
-      typename result< product_bases(LHS_BASE, RHS_BASE)>::type operator()(const LHS_BASE& lhs, const RHS_BASE& rhs) const {
-	value_type scalar_factor = lhs.second*rhs.second;
-	value_type dot_value = physics_5D::null<value_type>::value;
-	dot_value = g_c<metric, numeric::power_of_2_c<LHS_BASE::first_type::value>::value, numeric::power_of_2_c<RHS_BASE::first_type::value>::value >::value;
+      template<typename LhsBase
+	       ,typename RhsBase
+	       ,typename Metric
+	       ,typename ValueType>
+      typename result< product_bases(LhsBase
+				     ,RhsBase
+				     ,Metric
+				     ,ValueType)>::type operator()(const LhsBase& lhs
+								   ,const RhsBase& rhs
+								   ,const Metric&
+								   ,const ValueType&) const {
+	ValueType scalar_factor = lhs.second*rhs.second;
+	ValueType dot_value = physics_5D::null<ValueType>::value;
+	dot_value = g_c<Metric
+	  ,numeric::power_of_2_c<LhsBase::first_type::value>::value
+	  ,numeric::power_of_2_c<RhsBase::first_type::value>::value >::value;
 	//reorder if j>i, e_j*e_i = 2*(e_i.e_j - e_i^e_j)
 	//e_i*e_j = e_i.e_j + e_i^e_j
-	if(LHS_BASE::first_type::value > RHS_BASE::first_type::value) {
+	if(LhsBase::first_type::value > RhsBase::first_type::value) {
 	  dot_value += dot_value;
 	  scalar_factor = (-scalar_factor);
 	}
-	return typename result< product_bases(LHS_BASE, RHS_BASE)>::type(scalar_factor*dot_value, scalar_factor);
+	return typename result< product_bases(LhsBase
+					      ,RhsBase
+					      ,Metric
+					      ,ValueType)>::type(scalar_factor*dot_value, scalar_factor);
       }
-      //specialization 0 : squared base
-      template<typename BASE>
-      typename result< product_bases(BASE, BASE)>::type operator()(const BASE& lhs, const BASE& rhs) const {
-	value_type scalar_factor = lhs.second*rhs.second;
-	value_type dot_value = physics_5D::null<value_type>::value;
-	dot_value = g_c<metric, numeric::power_of_2_c<BASE::first_type::value>::value, numeric::power_of_2_c<BASE::first_type::value>::value >::value;
-	return typename result< product_bases(BASE, BASE)>::type(scalar_factor*dot_value);
+      //squared base
+      template<typename Base
+	       ,typename Metric
+	       ,typename ValueType>
+      typename result< product_bases(Base
+				     ,Base
+				     ,Metric
+				     ,ValueType)>::type operator()(const Base& lhs
+								   ,const Base& rhs
+								   ,const Metric&
+								   ,const ValueType&) const {
+	ValueType scalar_factor = lhs.second*rhs.second;
+	ValueType dot_value = physics_5D::null<ValueType>::value;
+	dot_value = g_c<Metric
+	  ,numeric::power_of_2_c<Base::first_type::value>::value
+	  ,numeric::power_of_2_c<Base::first_type::value>::value >::value;
+	return typename result< product_bases(Base
+					      ,Base
+					      ,Metric
+					      ,ValueType)>::type(scalar_factor*dot_value);
       }
-      //specialization 1 : base*scalar
-      template<typename LHS_BASE>
-      typename result< product_bases(LHS_BASE, types::blade_c<0, value_type>)>::type operator()(const LHS_BASE& lhs, const types::blade_c<0, value_type>& rhs) const {
-	return typename result< product_bases(LHS_BASE, types::blade_c<0, value_type>)>::type(lhs.second*rhs.second);
+      //base*scalar
+      template<typename LhsBase
+	       ,typename Metric
+	       ,typename ValueType>
+      typename result< product_bases(LhsBase
+				     ,types::blade_c<0, ValueType>
+				     ,Metric
+				     ,ValueType)>::type operator()(const LhsBase& lhs
+								   ,const types::blade_c<0, ValueType>& rhs
+								   ,const Metric&
+								   ,const ValueType&) const {
+	return typename result< product_bases(LhsBase
+					      ,types::blade_c<0, ValueType>
+					      ,Metric
+					      ,ValueType)>::type(lhs.second*rhs.second);
       }
-      //specialization 2 : scalar*base
-      template<typename RHS_BASE>
-      typename result< product_bases(types::blade_c<0, value_type>, RHS_BASE)>::type operator()(const types::blade_c<0, value_type>& lhs, const RHS_BASE& rhs) const {
-	return typename result< product_bases(types::blade_c<0, value_type>, RHS_BASE)>::type(lhs.second*rhs.second);
+      //scalar*base
+      template<typename RhsBase
+	       ,typename Metric
+	       ,typename ValueType>
+      typename result< product_bases(types::blade_c<0, ValueType>
+				     ,RhsBase
+				     ,Metric
+				     ,ValueType)>::type operator()(const types::blade_c<0, ValueType>& lhs
+								   ,const RhsBase& rhs
+								   ,const Metric&
+								   ,const ValueType&) const {
+	return typename result< product_bases(types::blade_c<0, ValueType>
+					      ,RhsBase
+					      ,Metric
+					      ,ValueType)>::type(lhs.second*rhs.second);
       }
-      //specialization 3 : scalar*scalar
-      typename result< product_bases(types::blade_c<0, value_type>, types::blade_c<0, value_type>)>::type operator()(const types::blade_c<0, value_type>& lhs, const types::blade_c<0, value_type>& rhs) const {
-	return typename result< product_bases(types::blade_c<0, value_type>, types::blade_c<0, value_type>)>::type(lhs.second*rhs.second);
+      //scalar*scalar
+      template<typename Metric
+	       ,typename ValueType>
+      typename result< product_bases(types::blade_c<0, ValueType>
+				     ,types::blade_c<0, ValueType>
+				     ,Metric
+				     ,ValueType)>::type operator()(const types::blade_c<0, ValueType>& lhs
+								   ,const types::blade_c<0, ValueType>& rhs
+								   ,const Metric&
+								   ,const ValueType) const {
+	return typename result< product_bases(types::blade_c<0, ValueType>
+					      ,types::blade_c<0, ValueType>
+					      ,Metric
+					      ,ValueType)>::type(lhs.second*rhs.second);
       }
     };
   }

@@ -2,6 +2,7 @@
 #define GALGEBRA_MAP_TYPE
 
 #include <boost/mpl/int.hpp>
+#include <boost/mpl/void_fwd.hpp>
 
 namespace galgebra
 {
@@ -10,6 +11,7 @@ namespace galgebra
 
   template<>
   struct map<> {
+    typedef boost::mpl::void_ head;
     typedef boost::mpl::int_<0> size;
   };
 
@@ -25,7 +27,7 @@ namespace galgebra
 
     map() : head_(), tail_() {}
     map(const head& hd, const Items&... tl) : head_(hd), tail_(tl...) {}
-    map(const map<Item, Items...>& source) : head_(source.head_), tail(source.tail_) {}
+    map(const map<Item, Items...>& source) : head_(source.head_), tail_(source.tail_) {}
   };
 }
 

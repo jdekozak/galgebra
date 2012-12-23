@@ -33,7 +33,7 @@ namespace galgebra {
     typedef void result_type;
     template<typename BLADE, typename LHS_MULTIVECTOR, typename RHS_MULTIVECTOR>
     void operator()(BLADE& blade, const LHS_MULTIVECTOR& lhs, const RHS_MULTIVECTOR& rhs) const {
-      blade.second = boost::fusion::at_key<typename BLADE::first_type>(lhs) + boost::fusion::at_key<typename BLADE::first_type>(rhs);
+      blade.second = (boost::fusion::at_key<typename BLADE::first_type>(lhs)).second + (boost::fusion::at_key<typename BLADE::first_type>(rhs)).second;
     }
   };
   struct intersection {

@@ -7,6 +7,7 @@
 #include "./operations/geometric_product.hpp"
 
 #include "./types/base.hpp"
+#include "./types/multivector.hpp"
 
 namespace galgebra {
   namespace expression_templates {
@@ -18,28 +19,30 @@ namespace galgebra {
       typedef METRIC metric;
       typedef VALUE_TYPE value_type;
       typedef BASE_SYMBOLS base_symbols;
-      //traits
-      template <typename T>
-      struct is_base :
-	boost::mpl::false_
-      {};
-      template <std::size_t N>
-      struct is_base<types::base_c<metric, base_symbols, N> > :
-	boost::mpl::true_
-      {};
-      template <typename N>
-      struct is_base<types::base<metric, base_symbols, N> > :
-	boost::mpl::true_
-      {};
-      //multivector grammar
-      struct multivector;
+
+      struct multivector_domain;
+      struct multivector_grammar;
+
+      template< typename Expression >
+      struct multivector
+	: boost::proto::extends< Expression, multivector< Expression >, multivector_domain >
+      {
+      };
+
       struct scalar
 	: boost::proto::terminal< boost::proto::convertible_to< value_type > >
       {};
       struct basis
-	: boost::proto::and_<boost::proto::terminal<boost::proto::_>
-			     ,boost::proto::if_<is_base<boost::proto::_value>() >
-			     >
+	: boost::proto::or_<
+	boost::proto::terminal<types::base<metric, value_type, base_symbols, boost::mpl::integral_c<size_t, 1> > >
+	,boost::proto::terminal<types::base<metric, value_type, base_symbols, boost::mpl::integral_c<size_t, 2> > >
+	,boost::proto::terminal<types::base<metric, value_type, base_symbols, boost::mpl::integral_c<size_t, 3> > >
+	,boost::proto::terminal<types::base<metric, value_type, base_symbols, boost::mpl::integral_c<size_t, 4> > >
+	,boost::proto::terminal<types::base<metric, value_type, base_symbols, boost::mpl::integral_c<size_t, 5> > >
+	,boost::proto::terminal<types::base<metric, value_type, base_symbols, boost::mpl::integral_c<size_t, 6> > >
+	,boost::proto::terminal<types::base<metric, value_type, base_symbols, boost::mpl::integral_c<size_t, 7> > >
+	,boost::proto::terminal<types::base<metric, value_type, base_symbols, boost::mpl::integral_c<size_t, 8> > >
+	>
       {};
       //basis is before scalar as it is more restrictive definition ?
       //scalar before basis => doesn't work !
@@ -49,46 +52,83 @@ namespace galgebra {
 			    ,scalar
 			    >
       {};
+      struct basis2blade
+	: boost::proto::or_<
+	boost::proto::when<boost::proto::terminal<types::base<metric, value_type, base_symbols, boost::mpl::integral_c<size_t, 1> > >
+			   ,types::blade_c<1, value_type>(boost::proto::_value) >
+	,boost::proto::when<boost::proto::terminal<types::base<metric, value_type, base_symbols, boost::mpl::integral_c<size_t, 2> > >
+			    ,types::blade_c<2, value_type>(boost::proto::_value) >
+	,boost::proto::when<boost::proto::terminal<types::base<metric, value_type, base_symbols, boost::mpl::integral_c<size_t, 3> > >
+			    ,types::blade_c<4, value_type>(boost::proto::_value) >
+	,boost::proto::when<boost::proto::terminal<types::base<metric, value_type, base_symbols, boost::mpl::integral_c<size_t, 4> > >
+			    ,types::blade_c<8, value_type>(boost::proto::_value) >
+	,boost::proto::when<boost::proto::terminal<types::base<metric, value_type, base_symbols, boost::mpl::integral_c<size_t, 5> > >
+			    ,types::blade_c<16, value_type>(boost::proto::_value) >
+	,boost::proto::when<boost::proto::terminal<types::base<metric, value_type, base_symbols, boost::mpl::integral_c<size_t, 6> > >
+			    ,types::blade_c<32, value_type>(boost::proto::_value) >
+	,boost::proto::when<boost::proto::terminal<types::base<metric, value_type, base_symbols, boost::mpl::integral_c<size_t, 7> > >
+			    ,types::blade_c<64, value_type>(boost::proto::_value) >
+	,boost::proto::when<boost::proto::terminal<types::base<metric, value_type, base_symbols, boost::mpl::integral_c<size_t, 8> > >
+			    ,types::blade_c<128, value_type>(boost::proto::_value) >
+	>
+      {};
       struct make_blade
 	: boost::proto::or_<boost::proto::when<basis
-					       ,_make_blade<value_type>(boost::proto::_value)
+					       //,_make_blade(boost::proto::_value, value_type())
+					       ,basis2blade(boost::proto::_expr)
 					       >
 			    ,boost::proto::when<scalar
-						,_make_blade<value_type>(boost::proto::_value)
+						,types::blade_c<0, value_type>(boost::proto::_value)
 						>
 			    >
       {};
       struct plus
 	: boost::proto::or_<boost::proto::when<boost::proto::plus< terminal, terminal >
-					       ,add_blades(make_blade(boost::proto::_left), make_blade(boost::proto::_right))
+					       ,add_blades(make_blade(boost::proto::_left)
+							   ,make_blade(boost::proto::_right))
 					       >
-			    ,boost::proto::when<boost::proto::plus< terminal, multivector>
-						,add_multivector_with_blade(multivector(boost::proto::_right), make_blade(boost::proto::_left))
+			    ,boost::proto::when<boost::proto::plus< terminal, multivector_grammar>
+						,add_multivector_with_blade(multivector_grammar(boost::proto::_right)
+									    ,make_blade(boost::proto::_left))
 						>
-			    ,boost::proto::when<boost::proto::plus< multivector, terminal>
-						,add_multivector_with_blade(multivector(boost::proto::_left), make_blade(boost::proto::_right))
+			    ,boost::proto::when<boost::proto::plus< multivector_grammar, terminal>
+						,add_multivector_with_blade(multivector_grammar(boost::proto::_left)
+									    ,make_blade(boost::proto::_right))
 						>
-			    ,boost::proto::when<boost::proto::plus< multivector, multivector>
-						,add_multivectors(multivector(boost::proto::_left), multivector(boost::proto::_right))
+			    ,boost::proto::when<boost::proto::plus< multivector_grammar, multivector_grammar>
+						,add_multivectors(multivector_grammar(boost::proto::_left)
+								  ,multivector_grammar(boost::proto::_right))
 						>
 			    >
       {};
       struct multiplies
 	: boost::proto::or_<boost::proto::when<boost::proto::multiplies< terminal, terminal >
-					       ,operations::product_bases<metric, value_type>(make_blade(boost::proto::_left), make_blade(boost::proto::_right))
+					       ,operations::product_bases(make_blade(boost::proto::_left)
+									  ,make_blade(boost::proto::_right)
+									  ,metric()
+									  ,value_type())
 					       >
-			    ,boost::proto::when<boost::proto::multiplies<terminal, multivector>
-						,operations::product_bases<metric, value_type>(make_blade(boost::proto::_left), multivector(boost::proto::_right))
+			    ,boost::proto::when<boost::proto::multiplies<terminal, multivector_grammar>
+						,operations::product_multivectors(make_blade(boost::proto::_left)
+										  ,multivector_grammar(boost::proto::_right)
+										  ,metric()
+										  ,value_type())
 						>
-			    ,boost::proto::when<boost::proto::multiplies<multivector, terminal>
-						,operations::product_bases<metric, value_type>(make_blade(boost::proto::_right), multivector(boost::proto::_left))
+			    ,boost::proto::when<boost::proto::multiplies<multivector_grammar, terminal>
+						,operations::product_multivectors(make_blade(boost::proto::_right)
+										  ,multivector_grammar(boost::proto::_left)
+										  ,metric()
+										  ,value_type())
 						>
-			    ,boost::proto::when<boost::proto::multiplies<multivector, multivector>
-						,operations::product_multivectors(multivector(boost::proto::_left), multivector(boost::proto::_right))
+			    ,boost::proto::when<boost::proto::multiplies<multivector_grammar, multivector_grammar>
+						,operations::product_multivectors(multivector_grammar(boost::proto::_left)
+										  ,multivector_grammar(boost::proto::_right)
+										  ,metric()
+										  ,value_type())
 						>
 			    >
       {};
-      struct multivector
+      struct multivector_grammar
 	: boost::proto::or_<boost::proto::when<terminal
 					       ,make_blade(boost::proto::_value)
 					       >

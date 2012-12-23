@@ -148,6 +148,5 @@ int main(int argc, char* argv[]) {
   std::cout << typeid(last_bis()).name() << std::endl;
 
   boost::fusion::for_each(theType(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20), print());
-
-  
+  boost::fusion::for_each(theBlade(1,'c'), print());
 }
