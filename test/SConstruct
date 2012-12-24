@@ -5,8 +5,5 @@ Cxx11Dbg=Environment(CXX=['/sw/bin/gcc-fsf-4.7']
                      ,LIBS=['stdc++', 'boost_unit_test_framework-mt']
                      )
 
-Cxx11Dbg.Program('tune_map'
-                 ,'tune_map.cpp')
-
 Cxx11Dbg.Program('test_galgebra'
-                 ,'test.cpp')
+                 ,['main.cpp', 'test.cpp', 'tune_map.cpp'])

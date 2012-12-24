@@ -1,8 +1,6 @@
 #include <galgebra/types/multivector.hpp>
 #include <galgebra/types/blade.hpp>
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE DataStructure
 #include <boost/test/unit_test.hpp>
 
 #include <boost/type_traits/is_same.hpp> 
@@ -44,23 +42,6 @@
 #include <typeinfo>
 
 BOOST_AUTO_TEST_CASE( Map ) {
-/*
-int main(int argc, char* argv[]) {
-
-    example::example_struct bert("bert", 99);
-    using namespace boost::fusion;
-
-    BOOST_TEST(deref_data(begin(bert)) == "bert");
-    BOOST_TEST(deref_data(next(begin(bert))) == 99);
-
-    BOOST_TEST(size(bert) == 2);
-
-    return boost::report_errors();
-
-    */
-
-  galgebra::types::multivector<int> my_int;
-  galgebra::types::multivector<int, char> my_tuple;
 
   static_assert(boost::fusion::traits::is_associative<galgebra::types::multivector<int, char> >::value,"Not an associative container !");
   static_assert(boost::fusion::traits::is_random_access<galgebra::types::multivector<int, char> >::value,"Not a random access container !");
@@ -86,29 +67,6 @@ int main(int argc, char* argv[]) {
     ,galgebra::types::blade_c<18, double>
     ,galgebra::types::blade_c<19, double>
     ,galgebra::types::blade_c<20, double> > theType;
-
-  int the_size = boost::fusion::result_of::size< galgebra::types::multivector<galgebra::types::blade_c<1, double>
-    ,galgebra::types::blade_c<2, double>
-    ,galgebra::types::blade_c<3, double>
-    ,galgebra::types::blade_c<4, double>
-    ,galgebra::types::blade_c<5, double>
-    ,galgebra::types::blade_c<6, double>
-    ,galgebra::types::blade_c<7, double>
-    ,galgebra::types::blade_c<8, double>
-    ,galgebra::types::blade_c<9, double>
-    ,galgebra::types::blade_c<10, double>
-    ,galgebra::types::blade_c<11, double>
-    ,galgebra::types::blade_c<12, double>
-    ,galgebra::types::blade_c<13, double>
-    ,galgebra::types::blade_c<14, double>
-    ,galgebra::types::blade_c<15, double>
-    ,galgebra::types::blade_c<16, double>
-    ,galgebra::types::blade_c<17, double>
-    ,galgebra::types::blade_c<18, double>
-    ,galgebra::types::blade_c<19, double>
-    ,galgebra::types::blade_c<20, double> > >::value;
-
-  BOOST_CHECK_EQUAL( the_size, 20 );
 
   BOOST_CHECK_EQUAL(boost::fusion::result_of::empty<theType>::value, boost::mpl::false_());
   BOOST_CHECK_EQUAL(boost::fusion::result_of::empty<galgebra::types::multivector<> >::value, boost::mpl::true_());
@@ -151,5 +109,5 @@ int main(int argc, char* argv[]) {
   BOOST_CHECK_EQUAL(boost::fusion::deref_data(boost::fusion::begin(aMap)), (boost::fusion::pair<int, char>('a')) );
   BOOST_CHECK_EQUAL(boost::fusion::deref_data(boost::fusion::next(boost::fusion::begin(aMap))), (boost::fusion::pair<long, char>('b')) );
 
-  BOOST_CHECK_EQUAL(boost::fusion::size(aMap), 2);
+  BOOST_CHECK_EQUAL( boost::fusion::size(theType()), 20 );
 }

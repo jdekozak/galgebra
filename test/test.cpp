@@ -2,8 +2,7 @@
 
 #include <galgebra/galgebra.hpp>
 #include <galgebra/io/output.hpp>
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE SpaceTime
+
 #include <boost/test/unit_test.hpp>
 
 //pick up the default Cl(1,4) over R
@@ -15,16 +14,6 @@ boost::proto::terminal< space_time::base_c<2> >::type e_2 = {{1.0}};
 boost::proto::terminal< space_time::base_c<3> >::type e_3 = {{1.0}};
 boost::proto::terminal< space_time::base_c<4> >::type e_4 = {{1.0}};
 boost::proto::terminal< space_time::base_c<5> >::type e_5 = {{1.0}};
-
-BOOST_AUTO_TEST_CASE( Map )
-{
-  galgebra::types::multivector<int> my_int;
-  galgebra::types::multivector<int, char> my_tuple;
-
-  static_assert(boost::fusion::traits::is_associative<galgebra::types::multivector<int, char> >::value,"Not an associative container !");
-  static_assert(boost::fusion::traits::is_random_access<galgebra::types::multivector<int, char> >::value,"Not a random access container !");
-  static_assert(boost::fusion::traits::is_sequence<galgebra::types::multivector<int, char> >::value,"Not a sequence !");
-}
 
 BOOST_AUTO_TEST_CASE( Numeric )
 {
