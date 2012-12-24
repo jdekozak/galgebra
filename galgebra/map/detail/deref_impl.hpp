@@ -6,11 +6,6 @@
 
 #include "../map_iterator_fwd.hpp"
 
-template<typename Sequence>
-struct get_head {
-  typedef typename Sequence::head type;
-};
-
 namespace boost {
   namespace fusion {
     namespace extension {

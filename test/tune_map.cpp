@@ -5,6 +5,8 @@
 #define BOOST_TEST_MODULE DataStructure
 #include <boost/test/unit_test.hpp>
 
+#include <boost/type_traits/is_same.hpp> 
+
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <boost/fusion/include/for_each.hpp>
 
@@ -16,6 +18,16 @@
 #include <boost/fusion/include/begin.hpp>
 #include <boost/fusion/sequence/intrinsic/end.hpp>
 #include <boost/fusion/include/end.hpp>
+#include <boost/fusion/sequence/intrinsic/at_c.hpp>
+#include <boost/fusion/include/at_c.hpp>
+#include <boost/fusion/sequence/intrinsic/at_key.hpp>
+#include <boost/fusion/include/at_key.hpp>
+#include <boost/fusion/sequence/intrinsic/has_key.hpp>
+#include <boost/fusion/include/has_key.hpp>
+#include <boost/fusion/sequence/intrinsic/value_at.hpp>
+#include <boost/fusion/include/value_at.hpp>
+#include <boost/fusion/sequence/intrinsic/value_at_key.hpp>
+#include <boost/fusion/include/value_at_key.hpp>
 
 #include <boost/fusion/iterator/deref.hpp>
 #include <boost/fusion/include/deref.hpp>
@@ -23,53 +35,20 @@
 #include <boost/fusion/include/next.hpp>
 #include <boost/fusion/iterator/prior.hpp>
 #include <boost/fusion/include/prior.hpp>
+#include <boost/fusion/iterator/advance.hpp>
+#include <boost/fusion/include/advance.hpp>
+#include <boost/fusion/iterator/value_of.hpp>
+#include <boost/fusion/include/value_of.hpp>
 
 #include <iostream>
 #include <typeinfo>
 
-struct print {
-  template<typename T>
-  void operator()(const T& value) const {
-    std::cout << value << std::endl;
-  }
-};
 BOOST_AUTO_TEST_CASE( Map ) {
 /*
 int main(int argc, char* argv[]) {
 
     example::example_struct bert("bert", 99);
     using namespace boost::fusion;
-
-    BOOST_TEST(deref(begin(bert)) == "bert");
-    BOOST_TEST(*next(begin(bert)) == 99);
-    BOOST_TEST(*prior(end(bert)) == 99);
-    BOOST_TEST(*advance_c<1>(begin(bert)) == 99);
-    BOOST_TEST(*advance_c<-1>(end(bert)) == 99);
-    BOOST_TEST(distance(begin(bert), end(bert)) == 2);
-
-    typedef result_of::begin<example::example_struct>::type first;
-    typedef result_of::next<first>::type second;
-    BOOST_MPL_ASSERT((boost::is_same<result_of::value_of<first>::type, std::string>));
-    BOOST_MPL_ASSERT((boost::is_same<result_of::value_of<second>::type, int>));
-
-    BOOST_TEST(begin(bert) != end(bert));
-    BOOST_TEST(advance_c<2>(begin(bert)) == end(const_cast<const example::example_struct&>(bert)));
-
-    BOOST_TEST(at_c<0>(bert) == "bert");
-    BOOST_TEST(at_c<1>(bert) == 99);
-
-    BOOST_TEST(at_key<fields::name>(bert) == "bert");
-    BOOST_TEST(at_key<fields::age>(bert) == 99);
-
-    BOOST_TEST(has_key<fields::name>(bert));
-    BOOST_TEST(has_key<fields::age>(bert));
-    BOOST_TEST(!has_key<int>(bert));
-
-    BOOST_MPL_ASSERT((boost::is_same<result_of::value_at_c<example::example_struct, 0>::type, std::string>));
-    BOOST_MPL_ASSERT((boost::is_same<result_of::value_at_c<example::example_struct, 1>::type, int>));
-
-    BOOST_MPL_ASSERT((boost::is_same<result_of::value_at_key<example::example_struct, fields::name>::type, std::string>));
-    BOOST_MPL_ASSERT((boost::is_same<result_of::value_at_key<example::example_struct, fields::age>::type, int>));
 
     BOOST_TEST(deref_data(begin(bert)) == "bert");
     BOOST_TEST(deref_data(next(begin(bert))) == 99);
@@ -86,7 +65,6 @@ int main(int argc, char* argv[]) {
   static_assert(boost::fusion::traits::is_associative<galgebra::types::multivector<int, char> >::value,"Not an associative container !");
   static_assert(boost::fusion::traits::is_random_access<galgebra::types::multivector<int, char> >::value,"Not a random access container !");
   static_assert(boost::fusion::traits::is_sequence<galgebra::types::multivector<int, char> >::value,"Not a sequence !");
-
 
   typedef galgebra::types::multivector<galgebra::types::blade_c<1, double>
     ,galgebra::types::blade_c<2, double>
@@ -132,21 +110,46 @@ int main(int argc, char* argv[]) {
 
   BOOST_CHECK_EQUAL( the_size, 20 );
 
-  std::cout << boost::fusion::result_of::empty<theType>::value << std::endl;
-  std::cout << boost::fusion::result_of::empty<galgebra::types::multivector<> >::value << std::endl;
+  BOOST_CHECK_EQUAL(boost::fusion::result_of::empty<theType>::value, boost::mpl::false_());
+  BOOST_CHECK_EQUAL(boost::fusion::result_of::empty<galgebra::types::multivector<> >::value, boost::mpl::true_());
 
-  typedef galgebra::types::multivector<int,char> theBlade;
-  typedef typename boost::fusion::result_of::begin<theBlade>::type start;
-  typedef typename boost::fusion::result_of::end<theBlade>::type ending;
-  typedef typename boost::fusion::result_of::prior<ending>::type last;
-  std::cout << typeid(boost::fusion::result_of::deref<start>::type() ).name() << std::endl;
-  std::cout << typeid(boost::fusion::result_of::deref<last>::type() ).name() << std::endl;
-  std::cout << typeid(boost::fusion::result_of::deref<typename boost::fusion::result_of::next<start>::type>::type() ).name() << std::endl;
-  std::cout << typeid(boost::fusion::result_of::deref<typename boost::fusion::result_of::prior<last>::type>::type() ).name() << std::endl;
+  typedef galgebra::types::multivector<int,char> type_t;
+  type_t element(1,'a');
+  BOOST_CHECK_EQUAL(boost::fusion::deref(boost::fusion::begin(element)), 1);
+  BOOST_CHECK_EQUAL(*boost::fusion::next(boost::fusion::begin(element)), 'a');
+  BOOST_CHECK_EQUAL(*boost::fusion::prior(boost::fusion::end(element)), 'a');
+  BOOST_CHECK_EQUAL(*boost::fusion::advance_c<1>(boost::fusion::begin(element)), 'a');
+  BOOST_CHECK_EQUAL(*boost::fusion::advance_c<-1>(boost::fusion::end(element)), 'a');
+  BOOST_CHECK_EQUAL(boost::fusion::distance(boost::fusion::begin(element), boost::fusion::end(element)), 2);
 
-  typedef typename boost::fusion::result_of::begin<galgebra::types::multivector<> >::type last_bis;
-  std::cout << typeid(last_bis()).name() << std::endl;
+  typedef typename boost::fusion::result_of::begin<type_t>::type first;
+  typedef typename boost::fusion::result_of::next<first>::type second;
+  static_assert((boost::is_same<boost::fusion::result_of::value_of<first>::type, int>::value), "First is different");
+  static_assert((boost::is_same<boost::fusion::result_of::value_of<second>::type, char>::value), "Second is different");
 
-  boost::fusion::for_each(theType(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20), print());
-  boost::fusion::for_each(theBlade(1,'c'), print());
+  BOOST_CHECK((boost::fusion::begin(element) != boost::fusion::end(element)));
+  BOOST_CHECK(boost::fusion::advance_c<2>(boost::fusion::begin(element)) == boost::fusion::end(const_cast<const type_t&>(element)));
+  BOOST_CHECK_EQUAL(boost::fusion::at_c<0>(element), 1);
+  BOOST_CHECK_EQUAL(boost::fusion::at_c<1>(element), 'a');
+
+  typedef galgebra::types::multivector<boost::fusion::pair<int, char>, boost::fusion::pair<long,char> > map_t;
+  map_t aMap('a', 'b');
+
+  BOOST_CHECK_EQUAL(boost::fusion::at_key<int>(aMap), (boost::fusion::pair<int, char>('a')));
+  BOOST_CHECK_EQUAL(boost::fusion::at_key<long>(aMap), (boost::fusion::pair<long, char>('b')));
+
+  BOOST_CHECK(boost::fusion::has_key<int>(aMap));
+  BOOST_CHECK(boost::fusion::has_key<long>(aMap));
+  BOOST_CHECK(!boost::fusion::has_key<char>(aMap));
+
+  static_assert(boost::is_same<boost::fusion::result_of::value_at_c<map_t, 0>::type, boost::fusion::pair<int,char> >::value, "Wrong value type");
+  static_assert(boost::is_same<boost::fusion::result_of::value_at_c<map_t, 1>::type, boost::fusion::pair<long,char> >::value, "Wrong value type");
+
+  static_assert(boost::is_same<boost::fusion::result_of::value_at_key<map_t, int>::type, boost::fusion::pair<int,char> >::value, "Wrong value type");
+  static_assert(boost::is_same<boost::fusion::result_of::value_at_key<map_t, long>::type, boost::fusion::pair<long,char> >::value, "Wrong value type");
+
+  BOOST_CHECK_EQUAL(boost::fusion::deref_data(boost::fusion::begin(aMap)), (boost::fusion::pair<int, char>('a')) );
+  BOOST_CHECK_EQUAL(boost::fusion::deref_data(boost::fusion::next(boost::fusion::begin(aMap))), (boost::fusion::pair<long, char>('b')) );
+
+  BOOST_CHECK_EQUAL(boost::fusion::size(aMap), 2);
 }

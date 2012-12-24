@@ -17,13 +17,17 @@ namespace boost {
 	template<typename Sequence, typename N>
 	struct apply {
 	  typedef typename apply<typename Sequence::tail
-				 ,boost::mpl::minus<N
-						    ,boost::mpl::int_<1>
-						    >
+				 ,typename boost::mpl::minus<N
+							     ,boost::mpl::int_<1>
+							     >::type
 				 >::type type;
 	};
 	template<typename Sequence>
 	struct apply<Sequence, boost::mpl::integral_c<int, 0> > {
+	  typedef typename Sequence::head type;
+	};
+	template<typename Sequence>
+	struct apply<Sequence, boost::mpl::int_<0> > {
 	  typedef typename Sequence::head type;
 	};
       };

@@ -9,7 +9,7 @@
 //pick up the default Cl(1,4) over R
 typedef galgebra::algebra<> space_time;
 
-//algebra terminal symbols
+//algebra terminal symbols with the identity value
 boost::proto::terminal< space_time::base_c<1> >::type e_1 = {{1.0}};
 boost::proto::terminal< space_time::base_c<2> >::type e_2 = {{1.0}};
 boost::proto::terminal< space_time::base_c<3> >::type e_3 = {{1.0}};
