@@ -6,4 +6,4 @@ Cxx11Dbg=Environment(CXX=['/sw/bin/gcc-fsf-4.7']
                      )
 
 Cxx11Dbg.Program('test_galgebra'
-                 ,['main.cpp', 'test.cpp', 'tune_map.cpp'])
+                 ,['main.cpp', 'tune_map.cpp', 'test.cpp'])
