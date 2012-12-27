@@ -15,6 +15,13 @@ boost::proto::terminal< space_time::base_c<3> >::type e_3 = {{1.0}};
 boost::proto::terminal< space_time::base_c<4> >::type e_4 = {{1.0}};
 boost::proto::terminal< space_time::base_c<5> >::type e_5 = {{1.0}};
 
+//algebra terminal symbols for variables
+boost::proto::terminal< space_time::variable_c<1> >::type x_1 = {{}};
+boost::proto::terminal< space_time::variable_c<2> >::type x_2 = {{}};
+boost::proto::terminal< space_time::variable_c<3> >::type x_3 = {{}};
+boost::proto::terminal< space_time::variable_c<4> >::type x_4 = {{}};
+boost::proto::terminal< space_time::variable_c<5> >::type x_5 = {{}};
+
 BOOST_AUTO_TEST_CASE( Numeric )
 {
   BOOST_CHECK_EQUAL( (galgebra::numeric::power<boost::mpl::integral_c<size_t,2>, boost::mpl::integral_c<size_t,0> >::value), 1);
@@ -147,4 +154,9 @@ BOOST_AUTO_TEST_CASE( Vector )
   auto _1_1e_1_plus_1_1e_1 = space_time::grammar::multivector_grammar()(1.1*e_1 + 1.1*e_1);
   BOOST_CHECK_EQUAL((space_time::get_blade_c<1>(_1_1e_1_plus_1_1e_1)), 2.2);
 
+}
+
+BOOST_AUTO_TEST_CASE( Variables )
+{
+  boost::proto::display_expr(1.1*x_1*e_1 + 2.2*x_2*e_2 + 3.3*x_3*e_3 + 4.4*x_4*e_4 + 5.5*x_5*e_5);
 }
