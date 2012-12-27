@@ -11,14 +11,16 @@
 
 namespace galgebra {
   namespace expression_templates {
-    template<typename METRIC
-	     ,typename VALUE_TYPE
-	     ,typename BASE_SYMBOLS
+    template<typename Metric
+	     ,typename ValueType
+	     ,typename BaseSymbols
+	     ,typename VariableSymbols
 	     >
     struct grammar {
-      typedef METRIC metric;
-      typedef VALUE_TYPE value_type;
-      typedef BASE_SYMBOLS base_symbols;
+      typedef Metric metric;
+      typedef ValueType value_type;
+      typedef BaseSymbols base_symbols;
+      typedef VariableSymbols variable_symbols;
 
       struct multivector_domain;
       struct multivector_grammar;
@@ -44,12 +46,25 @@ namespace galgebra {
 	,boost::proto::terminal<types::base<metric, value_type, base_symbols, boost::mpl::integral_c<size_t, 8> > >
 	>
       {};
+      struct variable
+	: boost::proto::or_<
+	boost::proto::terminal<types::variable<metric, value_type, variable_symbols, boost::mpl::integral_c<size_t, 1> > >
+	,boost::proto::terminal<types::variable<metric, value_type, variable_symbols, boost::mpl::integral_c<size_t, 2> > >
+	,boost::proto::terminal<types::variable<metric, value_type, variable_symbols, boost::mpl::integral_c<size_t, 3> > >
+	,boost::proto::terminal<types::variable<metric, value_type, variable_symbols, boost::mpl::integral_c<size_t, 4> > >
+	,boost::proto::terminal<types::variable<metric, value_type, variable_symbols, boost::mpl::integral_c<size_t, 5> > >
+	,boost::proto::terminal<types::variable<metric, value_type, variable_symbols, boost::mpl::integral_c<size_t, 6> > >
+	,boost::proto::terminal<types::variable<metric, value_type, variable_symbols, boost::mpl::integral_c<size_t, 7> > >
+	,boost::proto::terminal<types::variable<metric, value_type, variable_symbols, boost::mpl::integral_c<size_t, 8> > >	
+	>
+      {};
       //basis is before scalar as it is more restrictive definition ?
       //scalar before basis => doesn't work !
       //maybe because a base is convertible to a scalar...
       struct terminal
 	: boost::proto::or_<basis
 			    ,scalar
+			    ,variable
 			    >
       {};
       struct basis2blade
@@ -74,12 +89,12 @@ namespace galgebra {
       {};
       struct make_blade
 	: boost::proto::or_<boost::proto::when<basis
-					       //,_make_blade(boost::proto::_value, value_type())
 					       ,basis2blade(boost::proto::_expr)
 					       >
 			    ,boost::proto::when<scalar
 						,types::blade_c<0, value_type>(boost::proto::_value)
 						>
+			    ,variable
 			    >
       {};
       struct plus

@@ -46,7 +46,7 @@ namespace galgebra {
       return blade.second;
     }
     //grammar
-    typedef expression_templates::grammar<metric, value_type, base_symbols> grammar; 
+    typedef expression_templates::grammar<metric, value_type, base_symbols, variable_symbols> grammar; 
 
     //base
     template <typename N>
