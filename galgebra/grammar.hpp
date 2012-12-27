@@ -2,7 +2,6 @@
 
 #include "./dimension.hpp"
 
-#include "./operations/conversion.hpp"
 #include "./operations/addition.hpp"
 #include "./operations/geometric_product.hpp"
 
