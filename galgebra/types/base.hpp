@@ -16,7 +16,6 @@ namespace galgebra {
 	     ,typename BaseSymbols
 	     ,typename N>
     struct base {
-
       typedef Metric metric;
       typedef ValueType value_type;
       typedef BaseSymbols base_symbols;

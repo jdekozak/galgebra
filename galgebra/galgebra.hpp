@@ -1,15 +1,5 @@
-/*
-//to store the multivectors as a fusion::map, needs 2^n as maximum
-#define BOOST_MPL_LIMIT_METAFUNCTION_ARITY 32
-
-#define BOOST_PROTO_MAX_ARITY 32
-#define BOOST_PROTO_MAX_FUNCTION_CALL_ARITY 32
-#define BOOST_PROTO_MAX_LOGICAL_ARITY 32
-
-#define FUSION_MAX_MAP_SIZE 32
-*/
-
 #include "./types/base.hpp"
+#include "./types/variable.hpp"
 #include "./types/blade.hpp"
 #include "./types/vector.hpp"
 #include "./types/multivector.hpp"
@@ -63,6 +53,12 @@ namespace galgebra {
     using base = types::base<metric, value_type, base_symbols, N>;
     template <std::size_t N>
     using base_c = types::base_c<metric, value_type, base_symbols, N>;
+
+    //variable
+    template <typename N>
+    using variable = types::variable<metric, value_type, variable_symbols, N>;
+    template <std::size_t N>
+    using variable_c = types::variable_c<metric, value_type, variable_symbols, N>;
 
     //vector
     typedef typename types::vector<metric, value_type>::type vector;
