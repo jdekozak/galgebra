@@ -1,3 +1,6 @@
+#if !defined(GALGEBRA_GRAMMAR)
+#define GALGEBRA_GRAMMAR
+
 #include <boost/proto/proto.hpp>
 
 #include "./dimension.hpp"
@@ -157,3 +160,5 @@ namespace galgebra {
     };
   }
 }
+
+#endif
