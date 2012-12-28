@@ -9,6 +9,7 @@
 #include "./operations/geometric_product.hpp"
 
 #include "./types/base.hpp"
+#include "./types/variable.hpp"
 #include "./types/multivector.hpp"
 
 namespace galgebra {
