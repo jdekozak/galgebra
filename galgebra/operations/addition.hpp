@@ -13,7 +13,26 @@
 
 #include "../types/multivector.hpp"
 #include "../utility/utility.hpp"
-
+/*
+      struct plus
+	: boost::proto::or_<boost::proto::when<boost::proto::plus< terminal, terminal >
+					       ,add_blades(make_blade(boost::proto::_left)
+							   ,make_blade(boost::proto::_right))
+					       >
+			    ,boost::proto::when<boost::proto::plus< terminal, multivector_grammar>
+						,add_multivector_with_blade(multivector_grammar(boost::proto::_right)
+									    ,make_blade(boost::proto::_left))
+						>
+			    ,boost::proto::when<boost::proto::plus< multivector_grammar, terminal>
+						,add_multivector_with_blade(multivector_grammar(boost::proto::_left)
+									    ,make_blade(boost::proto::_right))
+						>
+			    ,boost::proto::when<boost::proto::plus< multivector_grammar, multivector_grammar>
+						,add_multivectors(multivector_grammar(boost::proto::_left)
+								  ,multivector_grammar(boost::proto::_right))
+						>
+			    >
+*/
 namespace galgebra {
   struct add_blades
     : boost::proto::callable

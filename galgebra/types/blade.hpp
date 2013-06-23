@@ -10,23 +10,10 @@
 
 namespace galgebra {
   namespace types {
-    /*
+
     template <typename Bitfield
 	      ,typename ValueType>
     using blade = boost::fusion::pair<Bitfield, ValueType>;
-    */
-    template <typename Bitfield
-	      ,typename ValueType>
-    struct blade
-      : boost::fusion::pair<Bitfield, ValueType> {
-      blade() : boost::fusion::pair<Bitfield, ValueType>() {}
-      blade(const ValueType& value) : boost::fusion::pair<Bitfield, ValueType>(value) {}
-
-      template<typename Metric, typename BaseSymbols, typename N>
-      blade(const base<Metric, ValueType, BaseSymbols, N>& base) : boost::fusion::pair<Bitfield, ValueType>(base.value_) {}
-      template<typename Metric, typename BaseSymbols, std::size_t N>
-      blade(const base_c<Metric, ValueType, BaseSymbols, N>& base) : boost::fusion::pair<Bitfield, ValueType>(base.value_) {}
-    };
 
     template <std::size_t Bitfield
 	      ,typename ValueType>
@@ -34,5 +21,26 @@ namespace galgebra {
 
   }
 }
-
+/*
+      struct basis2blade
+	: boost::proto::or_<
+	boost::proto::when<boost::proto::terminal<types::base<metric, value_type, base_symbols, boost::mpl::integral_c<size_t, 1> > >
+			   ,types::blade_c<1, value_type>(get_base_value(boost::proto::_value)) >
+	,boost::proto::when<boost::proto::terminal<types::base<metric, value_type, base_symbols, boost::mpl::integral_c<size_t, 2> > >
+			    ,types::blade_c<2, value_type>(get_base_value(boost::proto::_value)) >
+	,boost::proto::when<boost::proto::terminal<types::base<metric, value_type, base_symbols, boost::mpl::integral_c<size_t, 3> > >
+			    ,types::blade_c<4, value_type>(get_base_value(boost::proto::_value)) >
+	,boost::proto::when<boost::proto::terminal<types::base<metric, value_type, base_symbols, boost::mpl::integral_c<size_t, 4> > >
+			    ,types::blade_c<8, value_type>(get_base_value(boost::proto::_value)) >
+	,boost::proto::when<boost::proto::terminal<types::base<metric, value_type, base_symbols, boost::mpl::integral_c<size_t, 5> > >
+			    ,types::blade_c<16, value_type>(get_base_value(boost::proto::_value)) >
+	,boost::proto::when<boost::proto::terminal<types::base<metric, value_type, base_symbols, boost::mpl::integral_c<size_t, 6> > >
+			    ,types::blade_c<32, value_type>(get_base_value(boost::proto::_value)) >
+	,boost::proto::when<boost::proto::terminal<types::base<metric, value_type, base_symbols, boost::mpl::integral_c<size_t, 7> > >
+			    ,types::blade_c<64, value_type>(get_base_value(boost::proto::_value)) >
+	,boost::proto::when<boost::proto::terminal<types::base<metric, value_type, base_symbols, boost::mpl::integral_c<size_t, 8> > >
+			    ,types::blade_c<128, value_type>(get_base_value(boost::proto::_value)) >
+	>
+      {};
+*/
 #endif

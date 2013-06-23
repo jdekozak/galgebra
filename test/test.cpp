@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE( Multiplies )
 
   auto _2_2_mul_3_3 = space_time::grammar::multiplies()(boost::proto::lit(2.2)*boost::proto::lit(3.3));
   BOOST_CHECK_EQUAL((space_time::get_blade_c<0>(_2_2_mul_3_3)), 7.26 );
-  
+
   boost::proto::display_expr(2.2*e_2*3.3*e_3);
   auto _2_2e_2_mul_3_3e_3 = space_time::grammar::multiplies()(2.2*e_2*3.3*e_3);
   //  BOOST_CHECK_EQUAL((space_time::get_blade_c<0>(_2_2e_2_mul_3_3e_3)), 0.0);

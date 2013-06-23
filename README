@@ -1,3 +1,12 @@
+Pre requisites :
+- A C++11 compliant compiler
+- boost
+- scons
+
+How to :
+In test directory
+scons -k && ./test_galgebra --log_level=all --report_level=detailed
+
 Goals :
 
 1/ geometric algebra library like gaalet but with a metric tensor instead of a simple signature to define it

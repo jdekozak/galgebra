@@ -2,6 +2,11 @@
 #define GALGEBRA_OPERATIONS_GEOMETRIC_PRODUCT
 
 #include <boost/proto/proto_fwd.hpp>
+/*
+#include <boost/type_traits/remove_reference.hpp>
+#include <boost/type_traits/remove_const.hpp>
+*/
+#include <functional>
 
 #include "../types/blade.hpp"
 #include "../types/multivector.hpp"
@@ -10,9 +15,61 @@
 
 #include "../g.hpp"
 #include "../physics_5D.hpp"
+/*
+      struct multiplies
+	: boost::proto::or_<boost::proto::when<boost::proto::multiplies< scalar, scalar >
+					       ,types:blade_c<0, value_type>(std::multiplies<value_type>()(boost::proto::_value(boost::proto::_left)
+													 ,boost::proto::_value(boost::proto::_right)))
+					       >
+			     boost::proto::when<boost::proto::multiplies< scalar, scalar >
+					       ,operations::product_scalar_scalar(boost::ptoyo::_value(boost::proto::_left)
+										  ,boost::proto::_value(boost::proto::_right))
+					       >
+			    ,boost::proto::when<boost::proto::multiplies< scalar, basis >
+						,operations::product_scalar_basis(boost::proto::_left, boost::proto::_right)
+					       >
+			    ,boost::proto::when<boost::proto::multiplies< basis, scalar >
+					       ,operations::product_scalar_basis(boost::proto::_right, boost::proto::_left)
+					       >
+			    ,boost::proto::when<boost::proto::multiplies< basis, basis >
+						,operations::product_basis_basis(boost::proto::_left, boost::proto::_right)
+					       >
 
+	                    ,boost::proto::when<boost::proto::multiplies< terminal, terminal >
+					       ,operations::product_bases(make_blade(boost::proto::_left)
+									  ,make_blade(boost::proto::_right)
+									  ,metric()
+									  ,value_type())
+					       >
+			    ,boost::proto::when<boost::proto::multiplies<terminal, multivector_grammar>
+						,operations::product_multivectors(make_blade(boost::proto::_left)
+										  ,multivector_grammar(boost::proto::_right)
+										  ,metric()
+										  ,value_type())
+						>
+			    ,boost::proto::when<boost::proto::multiplies<multivector_grammar, terminal>
+						,operations::product_multivectors(make_blade(boost::proto::_right)
+										  ,multivector_grammar(boost::proto::_left)
+										  ,metric()
+										  ,value_type())
+						>
+			    ,boost::proto::when<boost::proto::multiplies<multivector_grammar, multivector_grammar>
+						,operations::product_multivectors(multivector_grammar(boost::proto::_left)
+										  ,multivector_grammar(boost::proto::_right)
+										  ,metric()
+										  ,value_type())
+						>
+			    >
+      {};
+*/
 namespace galgebra {
   namespace operations {
+
+    template<typename ValueType>
+    struct product_scalar_scalar 
+      : std::multiplies<ValueType>, boost::proto::callable {
+    };
+
     struct product_multivectors
       : boost::proto::callable
     {

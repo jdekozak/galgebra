@@ -42,7 +42,7 @@ namespace galgebra {
       return blade.second;
     }
     template <std::size_t Blade>
-    static value_type get_blade_c(const types::blade_c<Blade, value_type>& blade) {
+    static value_type get_blade_c(const types::blade<boost::mpl::integral_c<size_t,Blade>, value_type>& blade) {
       return blade.second;
     }
     //grammar

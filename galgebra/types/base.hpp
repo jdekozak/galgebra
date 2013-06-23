@@ -36,6 +36,7 @@ namespace galgebra {
 	     ,typename BaseSymbols
 	     ,std::size_t N>
     using base_c = base<Metric, ValueType, BaseSymbols, boost::mpl::integral_c<size_t, N> >;
+
   }
 }
 
